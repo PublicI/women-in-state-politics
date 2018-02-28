@@ -1,7 +1,7 @@
 <template>
     <div class="states">
-        <div v-for="(state,name) in states" class="state">
-            <h4>{{name}}</h4>
+        <div v-for="state in states" class="state">
+            <h4>{{state.key}}</h4>
 
             <svg :width="width" :height="height">
                 <path :d="state.d" />
@@ -13,12 +13,11 @@
 <script>
 import seats from '~/assets/seats.csv';
 import * as d3 from 'd3';
-import groupby from 'lodash.groupby';
 
 export default {
     data() {
         let width = 100;
-        let height = 400;
+        let height = 200;
 
         let records = seats.map((d) => {
             return {
@@ -26,10 +25,10 @@ export default {
                 year: parseInt(d.Year),
                 percent: parseFloat(d['Total % Women'])
             };
-        });
+        }).sort((a, b) => a.year - b.year);
 
         let x = d3.scaleLinear()
-            .rangeRound([0, width]);
+            .rangeRound([-1, width - 1]);
 
         x.domain(d3.extent(records, (d) => d.year));
 
@@ -47,21 +46,23 @@ export default {
 
         area.y0(y(0));
 
-        let states = groupby(records, 'state');
+        // let states = topairs(groupby(records, 'state'));
 
-        Object.keys(states).forEach((key) => {
-            let state = states[key];
-            state.d = area(state);
-        });
+        let states = d3.nest()
+            .key((d) => d.state)
+            .entries(records);
+
+        states
+            .sort((a, b) => b.values[b.values.length - 1].percent - a.values[a.values.length - 1].percent)
+            .forEach((state) => {
+                state.d = area(state.values);
+            });
 
         return {
             states,
             width,
             height
         };
-    },
-    mounted() {
-
     }
 };
 </script>
@@ -80,7 +81,8 @@ svg {
 }
 svg path {
     fill: pink;
-    /* stroke: black; */
+    /* fill: none; */
+    stroke: black;
     stroke-width: 1px;
 }
 .states:after {

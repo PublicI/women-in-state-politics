@@ -1,15 +1,42 @@
 <template>
     <div class="states">
-        <div v-for="state in states" class="state">
-            <h4>{{state.key}}</h4>
+        <div v-for="(state,i) in states" class="state">
+            <h4 style="text-align:center">{{state.key}}</h4>
+
+            <div class="boxLabel" style="text-align:center">
+                GOVERNOR
+            </div>
 
             <svg :width="width" height="6">
-                <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="100%" v-for="governor in governors[state.key]" />
+                <rect :x="governor.x1" y="-1" :width="governor.x2-governor.x1" height="8" v-for="governor in governors[state.key]" class="governor" />
             </svg>
-            <svg :width="width" :height="height">
-                <path :d="state.area" class="area" />
-                <path :d="state.line" class="line" />
-            </svg>
+
+
+            <div class="legislativeContainer">
+                <div class="boxLabel">
+                    LEGISLATURE
+                    </div>
+
+                <svg :width="width" :height="height">
+                    <g>
+                        <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
+                        <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks" />
+                    </g>
+                    <path :d="state.area" class="area" />
+                    <path :d="state.line" class="line" />
+
+                    <g>
+                        <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="tick in horizontalTicks" @mouseover="show(tick.year)" />
+                    </g>
+
+                </svg>
+            </div>
+
+            <div class="yearLabels">
+                <div class="leftYearLabel">{{yearExtent[0]}}</div>
+                <div class="rightYearLabel">{{yearExtent[1]}}</div>
+            </div>
+
         </div>
     </div>
 </template>
@@ -22,27 +49,39 @@ import * as journalize from 'journalize';
 
 export default {
     data() {
-        let width = 100;
-        let height = 200;
+        let width = 88;
+        let height = 176;
 
         let records = seats
             .map(d => {
+                let percent = parseInt(d['Total Women Legislators']) / parseInt(d['Total Legislators']) * 100;
+
+                percent = Math.round(percent * 10) / 10;
+
+                /*
+                if (parseFloat(d['Total % Women']) !== percent) {
+                    console.log(d.State, d.Year, d['Total % Women'], percent);
+                }
+                */
+
                 return {
                     state: d.State,
                     year: parseInt(d.Year),
-                    percent: parseFloat(d['Total % Women'])
+                    percent: percent
                 };
             })
             .sort((a, b) => a.year - b.year);
 
-        let x = d3.scaleLinear().rangeRound([0, width]);
+        let x = d3.scaleLinear().range([0, width]);
 
-        x.domain(d3.extent(records, d => d.year));
+        let yearExtent = d3.extent(records, d => d.year);
+
+        x.domain(yearExtent);
 
         let y = d3
             .scaleLinear()
             .domain([0, 100])
-            .rangeRound([height, 0]);
+            .range([height, 0]);
 
         let line = d3
             .line()
@@ -95,7 +134,37 @@ export default {
             .key((d) => d.state)
             .object(governors);
 
+        let ticks = [25, 50, 75]
+            .map((percent) => {
+                return {
+                    percent,
+                    y: y(percent),
+                    x1: 0,
+                    x2: width
+                };
+            });
+
+        let horizontalTicks = [];
+
+        for (let i = yearExtent[0]; i < yearExtent[1]; i++) {
+            horizontalTicks.push(i);
+        }
+
+        horizontalTicks = horizontalTicks
+            .map((year) => {
+                return {
+                    year,
+                    y: 0,
+                    height,
+                    x: x(year),
+                    width: (width + 20) / horizontalTicks.length
+                };
+            });
+
         return {
+            ticks,
+            yearExtent,
+            horizontalTicks,
             states,
             governors,
             width,
@@ -111,13 +180,13 @@ export default {
     margin: 5px;
 }
 .state h4 {
-    font-size: 15px;
-    line-height: 15px;
+    font-size: 13px;
+    line-height: 13px;
 }
 svg {
     display: block;
     width: 100%;
-    margin-top: 3px;
+    margin-top: 2px;
     border: 1px solid rgb(200,200,200);
 }
 svg .area {
@@ -133,10 +202,59 @@ svg .line {
     display: table;
     clear: both;
 }
-rect {
+.governor {
     fill: #ff6480;
-    /*
     stroke: black;
-    stroke-width: 1px;*/
+    stroke-width: 1px;
+    shape-rendering: optimizeSpeed;
+}
+.yearLabels {
+    font-size: 12px;
+    line-height: 12px;
+    color: rgb(150,150,150);
+    padding-top: 3px;
+}
+.yearLabels:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.leftYearLabel {
+    float: left;
+}
+.rightYearLabel {
+    float: right;
+}
+line {
+    stroke: rgb(218,218,218);
+    stroke-width: 1px;
+    shape-rendering: optimizeSpeed;
+}
+.darker {
+    stroke: rgb(200,200,200);
+}
+.tickLabel {
+    font-size: 12px;
+    line-height: 12px;
+    fill: rgb(150,150,150);
+}
+.boxLabel {
+    font-size: 11px;
+    line-height: 11px;
+    color: rgb(150,150,150);
+    fill: rgb(150,150,150);
+    margin-top: 3px;
+}
+.target {
+    fill: transparent;
+}
+.legislativeContainer {
+    position: relative;
+}
+.legislativeContainer .boxLabel {
+    position: absolute;
+    top: 1px;
+    text-align: center;
+    width: 100%;
 }
 </style>

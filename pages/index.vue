@@ -1,43 +1,59 @@
 <template>
-    <div class="states">
-        <div v-for="(state,i) in states" class="state">
-            <h4 style="text-align:center">{{state.key}}</h4>
+    <div>
+        <div class="key">
+            <p><span class="keyBox"></span> Percent of positions held by women</p>
+            <p style="margin-top:10px">In order of 2017 percentage &rarr;</p>
+        </div>
 
-            <div class="boxLabel" style="text-align:center">
-                GOVERNOR
-            </div>
+        <div class="states">
+            <div v-for="(state,i) in states" class="state stateContainer">
+                <h4 style="text-align:center">{{state.key}}</h4>
 
-            <svg :width="width" height="6">
-                <rect :x="governor.x1" y="-1" :width="governor.x2-governor.x1" height="8" v-for="governor in governors[state.key]" class="governor" />
-            </svg>
+                <div class="boxLabel" style="text-align:center">
+                    GOVERNOR
+                </div>
+
+                <svg :width="width" height="6">
+                    <rect :x="governor.x1" y="-1" :width="governor.x2-governor.x1" height="5" v-for="governor in governors[state.key]" class="governor" />
+                </svg>
 
 
-            <div class="legislativeContainer">
-                <div class="boxLabel">
-                    LEGISLATURE
+                <div class="legislativeContainer">
+                    <div class="boxLabel">
+                        LEGISLATURE
                     </div>
 
-                <svg :width="width" :height="height">
-                    <g>
-                        <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
-                        <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks" />
-                    </g>
-                    <path :d="state.area" class="area" />
-                    <path :d="state.line" class="line" />
+                    <div class="percentLabel" v-if="state.shownRecord">
+                        {{state.shownRecord.percent}}%<br>
+                        in {{state.shownRecord.year}}
+                    </div>
 
-                    <g>
-                        <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="tick in horizontalTicks" @mouseover="show(tick.year)" />
-                    </g>
 
-                </svg>
+                    <svg :width="width" :height="height" @mouseout="showLabel(null)">
+                        <g>
+                            <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
+                            <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks" />
+                        </g>
+                        <path :d="state.area" class="area" />
+                        <path :d="state.line" class="line" />
+
+                        <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
+
+                        <g>
+                            <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="yearLabels">
+                    <div class="leftYearLabel">{{yearExtent[0]}}</div>
+                    <div class="rightYearLabel">{{yearExtent[1]}}</div>
+                </div>
+
             </div>
-
-            <div class="yearLabels">
-                <div class="leftYearLabel">{{yearExtent[0]}}</div>
-                <div class="rightYearLabel">{{yearExtent[1]}}</div>
-            </div>
-
         </div>
+
+        <p class="source">Source: Rutgers Center for American Women and Politics | <a href="#">Download data</a></p>
     </div>
 </template>
 
@@ -54,7 +70,8 @@ export default {
 
         let records = seats
             .map(d => {
-                let percent = parseInt(d['Total Women Legislators']) / parseInt(d['Total Legislators']) * 100;
+                let percent = parseInt(d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
+                    parseInt(d['Total Legislators']) * 100;
 
                 percent = Math.round(percent * 10) / 10;
 
@@ -81,10 +98,16 @@ export default {
         let y = d3
             .scaleLinear()
             .domain([0, 100])
-            .range([height, 0]);
+            .range([height-2, 0]);
+
+        records.forEach(d => {
+            d.y = y(d.percent);
+            d.x = x(d.year);
+        });
 
         let line = d3
             .line()
+            .defined(d => d)
             .x(d => x(d.year))
             .y(d => y(d.percent));
 
@@ -109,6 +132,7 @@ export default {
                     a.values[a.values.length - 1].percent
             )
             .forEach(state => {
+                state.shownRecord = null; // state.values[state.values.length - 1];
                 state.area = area(state.values);
                 state.line = line(state.values);
             });
@@ -128,7 +152,8 @@ export default {
                     state: journalize.postal(exec.State, true),
                     name: exec.Name
                 };
-            });
+            })
+            .filter(exec => exec.x1 > 0);
 
         governors = d3.nest()
             .key((d) => d.state)
@@ -146,18 +171,20 @@ export default {
 
         let horizontalTicks = [];
 
-        for (let i = yearExtent[0]; i < yearExtent[1]; i++) {
+        for (let i = yearExtent[0]; i <= yearExtent[1]; i++) {
             horizontalTicks.push(i);
         }
 
         horizontalTicks = horizontalTicks
             .map((year) => {
+                let w = (width + 20) / horizontalTicks.length;
+
                 return {
                     year,
                     y: 0,
                     height,
-                    x: x(year),
-                    width: (width + 20) / horizontalTicks.length
+                    x: x(year) - (w / 2),
+                    width: w
                 };
             });
 
@@ -168,14 +195,26 @@ export default {
             states,
             governors,
             width,
-            height
+            height,
+            shownYear: null
         };
+    },
+    methods: {
+        showLabel(year) {
+            this.shownYear = year;
+
+            this.states.forEach((state) => {
+                state.shownRecord = state.values.find((d) => d.year === year);
+            });
+        }
     }
 };
 </script>
 
-<style scoped>
-.state {
+<style>
+.stateContainer {
+    width: 90px;
+    display: inline-block;
     float: left;
     margin: 5px;
 }
@@ -188,6 +227,7 @@ svg {
     width: 100%;
     margin-top: 2px;
     border: 1px solid rgb(200,200,200);
+    overflow: visible;
 }
 svg .area {
     fill: #ff6480;
@@ -239,11 +279,11 @@ line {
     fill: rgb(150,150,150);
 }
 .boxLabel {
-    font-size: 11px;
-    line-height: 11px;
+    font-size: 12px;
+    line-height: 12px;
     color: rgb(150,150,150);
     fill: rgb(150,150,150);
-    margin-top: 3px;
+    margin-top: 8px;
 }
 .target {
     fill: transparent;
@@ -256,5 +296,44 @@ line {
     top: 1px;
     text-align: center;
     width: 100%;
+}
+.percentLabel {
+    font-size: 13px;
+    line-height: 15px;
+    color: rgb(150,150,150);
+    fill: rgb(150,150,150);
+    position: absolute;
+    top: 50%;
+    margin-top: -34px;
+    text-align: center;
+    width: 100%;
+    pointer-events: none;
+}
+circle {
+    stroke: white;
+    stroke-width: 1.5px;
+}
+.key {
+    font-size: 14px;
+    line-height: 16px;
+}
+.key p {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    padding-left: 5px;
+}
+.keyBox {
+    background-color: #ff6480;
+    border: 1px solid black;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    position: relative;
+    top: 2px;
+}
+.source {
+    line-height: 15px;
+    font-size: 13px;
+    color: #666;
 }
 </style>

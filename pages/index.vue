@@ -9,7 +9,7 @@
             <div v-for="(state,i) in states" class="state stateContainer">
                 <h4 style="text-align:center">{{state.key}}</h4>
 
-                <div class="boxLabel" style="text-align:center">
+                <div class="boxLabel" style="text-align:center;margin-bottom:5px">
                     GOVERNOR
                 </div>
 
@@ -98,7 +98,7 @@ export default {
         let y = d3
             .scaleLinear()
             .domain([0, 100])
-            .range([height-2, 0]);
+            .range([height - 2, 0]);
 
         records.forEach(d => {
             d.y = y(d.percent);

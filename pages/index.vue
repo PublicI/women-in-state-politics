@@ -53,6 +53,8 @@
             </div>
         </div>
 
+        <p class="source">Legislative percentages from 1975 - 1982 computed every other year.</p> <!-- 1976, 1978, 1980, 1982 -->
+
         <p class="source">Source: Rutgers Center for American Women and Politics | <a href="#">Download data</a></p>
     </div>
 </template>
@@ -187,7 +189,16 @@ export default {
                     width: w
                 };
             });
-
+/*
+        states.forEach(state => {
+            horizontalTicks.forEach(tick => {
+                let result = state.values.find(d => d.year === tick.year);
+                if (typeof result === 'undefined' || !result) {
+                    console.log(state.key, tick.year, result);
+                }
+            });
+        });
+*/
         return {
             ticks,
             yearExtent,
@@ -196,12 +207,17 @@ export default {
             governors,
             width,
             height,
-            shownYear: null
+            shownYear: null,
+            missingYears: [1976, 1978, 1980, 1982]
         };
     },
     methods: {
         showLabel(year) {
             this.shownYear = year;
+
+            if (this.missingYears.indexOf(year) !== -1) {
+                year--;
+            }
 
             this.states.forEach((state) => {
                 state.shownRecord = state.values.find((d) => d.year === year);
@@ -341,6 +357,7 @@ circle {
     line-height: 15px;
     font-size: 13px;
     color: #666;
+    margin-bottom: 4px;
 }
 .bumpTextUp {
     margin-top: -37px;

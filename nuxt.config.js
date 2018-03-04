@@ -36,6 +36,7 @@ module.exports = {
         ]
     ],
     plugins: [
+        { src: '~/plugins/tooltip.js', ssr: false },
         { src: '~/plugins/pym.js', ssr: false },
         { src: '~/plugins/typekit.js', ssr: false },
         { src: '~plugins/chartbeat.js', ssr: false }

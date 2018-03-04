@@ -2,7 +2,7 @@
     <div>
         <div class="key">
             <p><span class="keyBox"></span> Percent of positions held by women</p>
-            <p style="margin-top:10px">In order of 2017 percentage &rarr;</p>
+            <p style="margin-top:10px">Higher 2017 legislative percentage to lower &rarr;</p>
         </div>
 
         <div class="states">
@@ -14,7 +14,7 @@
                 </div>
 
                 <svg :width="width" height="6">
-                    <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5" v-for="governor in governors[state.key]" class="governor" />
+                    <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
                 </svg>
 
 
@@ -23,8 +23,8 @@
                         LEGISLATURE
                     </div>
 
-                    <div class="percentLabel" v-if="state.shownRecord">
-                        {{state.shownRecord.percent}}%<br>
+                    <div :class="'percentLabel' + (i === 0 ? ' bumpTextUp' : '')" v-if="state.shownRecord">
+                        {{Math.round(state.shownRecord.percent)}}% <span v-if="i === 0">of seats<br>held by women</span><br>
                         in {{state.shownRecord.year}}
                     </div>
 
@@ -65,8 +65,8 @@ import * as journalize from 'journalize';
 
 export default {
     data() {
-        let width = 88;
-        let height = 176;
+        let width = 128;
+        let height = 215;
 
         let records = seats
             .map(d => {
@@ -138,7 +138,7 @@ export default {
             });
 
         let governors = execs
-            .filter(exec => exec.Position === 'Governor')
+            .filter(exec => exec.Position.trim() === 'Governor')
             .map(exec => {
                 let years = exec.Years
                     .split('-')
@@ -153,7 +153,7 @@ export default {
                     name: exec.Name
                 };
             })
-            .filter(exec => exec.x1 > 0);
+            .filter(exec => exec.x2 > 0);
 
         governors = d3.nest()
             .key((d) => d.state)
@@ -213,19 +213,19 @@ export default {
 
 <style>
 .stateContainer {
-    width: 90px;
+    width: 130px;
     display: inline-block;
     float: left;
     margin: 5px;
 }
 .state h4 {
-    font-size: 13px;
-    line-height: 13px;
+    font-size: 14px;
+    line-height: 14px;
 }
 svg {
     display: block;
     width: 100%;
-    margin-top: 2px;
+    margin-top: 6px;
     border: 1px solid rgb(200,200,200);
     overflow: visible;
 }
@@ -249,8 +249,8 @@ svg .line {
     shape-rendering: optimizeSpeed;
 }
 .yearLabels {
-    font-size: 12px;
-    line-height: 12px;
+    font-size: 13px;
+    line-height: 13px;
     color: rgb(150,150,150);
     padding-top: 3px;
 }
@@ -274,16 +274,16 @@ line {
     stroke: rgb(200,200,200);
 }
 .tickLabel {
-    font-size: 12px;
-    line-height: 12px;
+    font-size: 13px;
+    line-height: 13px;
     fill: rgb(150,150,150);
 }
 .boxLabel {
-    font-size: 12px;
-    line-height: 12px;
+    font-size: 13px;
+    line-height: 13px;
     color: rgb(150,150,150);
     fill: rgb(150,150,150);
-    margin-top: 8px;
+    margin-top: 2px;
 }
 .target {
     fill: transparent;
@@ -293,7 +293,7 @@ line {
 }
 .legislativeContainer .boxLabel {
     position: absolute;
-    top: 1px;
+    top: 18px;
     text-align: center;
     width: 100%;
 }
@@ -303,8 +303,8 @@ line {
     color: rgb(150,150,150);
     fill: rgb(150,150,150);
     position: absolute;
-    top: 50%;
-    margin-top: -34px;
+    top: 45%;
+    margin-top: -30px;
     text-align: center;
     width: 100%;
     pointer-events: none;
@@ -316,6 +316,12 @@ circle {
 .key {
     font-size: 14px;
     line-height: 16px;
+}
+.vue-tooltip {
+    font-family: tablet-gothic-n2,tablet-gothic,Helvetica Neue,Helvetica,Arial,sans-serif;
+    line-height: 14px;
+    font-weight: 300;
+    font-size: 14px;
 }
 .key p {
     margin-bottom: 0;
@@ -335,5 +341,8 @@ circle {
     line-height: 15px;
     font-size: 13px;
     color: #666;
+}
+.bumpTextUp {
+    margin-top: -37px;
 }
 </style>

@@ -27,7 +27,8 @@
     "journalize": "^1.2.0",
     "nuxt": "^1.0.0-rc11",
     "pym.js": "^1.3.2",
-    "source-map-support": "^0.4.15"
+    "source-map-support": "^0.4.15",
+    "vue-directive-tooltip": "^1.4.2"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",

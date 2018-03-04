@@ -14,7 +14,7 @@
                 </div>
 
                 <svg :width="width" height="6">
-                    <rect :x="governor.x1" y="-1" :width="governor.x2-governor.x1" height="5" v-for="governor in governors[state.key]" class="governor" />
+                    <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5" v-for="governor in governors[state.key]" class="governor" />
                 </svg>
 
 

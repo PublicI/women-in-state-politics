@@ -3,7 +3,7 @@
         <div class="key">
             <p><span class="keyBox"></span> Percent of positions held by women</p>
             <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
-            <p style="margin-top:10px">Higher 2017 legislative percentage to lower &rarr;</p>
+            <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
         </div>
 
         <div class="states">
@@ -14,8 +14,8 @@
                     GOVERNOR
                 </div>
 
-                <svg :width="width" height="6">
-                    <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                <svg :width="width" height="7">
+                    <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
                 </svg>
 
 
@@ -34,7 +34,7 @@
                         <defs>
                           <linearGradient id='grad'>
                             <stop stop-color='#FDBACA'/>
-                            <stop offset='18%' stop-color='#FDBACA'/>
+                            <stop offset='18.9%' stop-color='#FDBACA'/>
                             <stop offset='19%' stop-color='#ff6480'/>
                           </linearGradient>
                         </defs>
@@ -44,7 +44,7 @@
                             <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
                         </g>
                         <path :d="state.area" class="area" fill="url(#grad)" />
-                        <path :d="state.line" class="line" stroke-dasharray="5, 5, 5, 5, 5, 5, 5, 5, 300" />
+                        <path :d="state.line" class="line" stroke-dasharray="4, 4, 4, 4, 4, 4, 4, 4, 300" />
                         <!-- stroke="url(#grad)" -->
 
                         <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
@@ -63,12 +63,12 @@
             </div>
         </div>
 
-        <p class="source">Source: Rutgers Center for American Women and Politics | <a href="#">Download data</a></p>
+        <p class="source">Source: Rutgers Center for American Women and Politics | <a href="seats.csv">Download data</a></p>
     </div>
 </template>
 
 <script>
-import seats from '~/assets/seats.csv';
+import seats from '~/static/seats.csv';
 import execs from '~/assets/govs.csv';
 import { line, area, nest, scaleLinear, extent, csvParse } from 'd3';
 import { postal } from 'journalize';
@@ -80,8 +80,8 @@ export default {
 
         let records = csvParse(seats)
             .map(d => {
-                let percent = parseInt(d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
-                    parseInt(d['Total Legislators']) * 100;
+                let percent = parseInt(d.cawp_total_women) / // d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
+                    parseInt(d.cawp_total_legislators) * 100; // ['Total Legislators']
 
                 percent = Math.round(percent * 10) / 10;
 
@@ -92,8 +92,8 @@ export default {
                 */
 
                 return {
-                    state: d.State,
-                    year: parseInt(d.Year),
+                    state: d.state,
+                    year: parseInt(d.year),
                     percent: percent
                 };
             })

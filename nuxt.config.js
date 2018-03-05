@@ -71,7 +71,7 @@ module.exports = {
         extend(config, ctx) {
             config.module.rules.push({
                 test: /\.csv$/,
-                use: [{ loader: 'dsv-loader' }]
+                use: [{ loader: 'raw-loader' }]
             });
 
             if (ctx.isClient) {

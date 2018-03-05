@@ -2,6 +2,7 @@
     <div>
         <div class="key">
             <p><span class="keyBox"></span> Percent of positions held by women</p>
+            <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
             <p style="margin-top:10px">Higher 2017 legislative percentage to lower &rarr;</p>
         </div>
 
@@ -30,12 +31,21 @@
 
 
                     <svg :width="width" :height="height" @mouseout="showLabel(null)">
+                        <defs>
+                          <linearGradient id='grad'>
+                            <stop stop-color='#FDBACA'/>
+                            <stop offset='18%' stop-color='#FDBACA'/>
+                            <stop offset='19%' stop-color='#ff6480'/>
+                          </linearGradient>
+                        </defs>
+
                         <g>
                             <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
-                            <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks" />
+                            <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
                         </g>
-                        <path :d="state.area" class="area" />
-                        <path :d="state.line" class="line" />
+                        <path :d="state.area" class="area" fill="url(#grad)" />
+                        <path :d="state.line" class="line" stroke-dasharray="5, 5, 5, 5, 5, 5, 5, 5, 300" />
+                        <!-- stroke="url(#grad)" -->
 
                         <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
 
@@ -53,24 +63,22 @@
             </div>
         </div>
 
-        <p class="source">Legislative percentages from 1975 - 1982 computed every other year.</p> <!-- 1976, 1978, 1980, 1982 -->
-
         <p class="source">Source: Rutgers Center for American Women and Politics | <a href="#">Download data</a></p>
     </div>
 </template>
 
 <script>
 import seats from '~/assets/seats.csv';
-import execs from '~/assets/execs.csv';
-import * as d3 from 'd3';
-import * as journalize from 'journalize';
+import execs from '~/assets/govs.csv';
+import { line, area, nest, scaleLinear, extent, csvParse } from 'd3';
+import { postal } from 'journalize';
 
 export default {
     data() {
         let width = 128;
         let height = 215;
 
-        let records = seats
+        let records = csvParse(seats)
             .map(d => {
                 let percent = parseInt(d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
                     parseInt(d['Total Legislators']) * 100;
@@ -91,14 +99,13 @@ export default {
             })
             .sort((a, b) => a.year - b.year);
 
-        let x = d3.scaleLinear().range([0, width]);
+        let x = scaleLinear().range([0, width]);
 
-        let yearExtent = d3.extent(records, d => d.year);
+        let yearExtent = extent(records, d => d.year);
 
         x.domain(yearExtent);
 
-        let y = d3
-            .scaleLinear()
+        let y = scaleLinear()
             .domain([0, 100])
             .range([height - 2, 0]);
 
@@ -107,23 +114,20 @@ export default {
             d.x = x(d.year);
         });
 
-        let line = d3
-            .line()
+        let lineGen = line()
             .defined(d => d)
             .x(d => x(d.year))
             .y(d => y(d.percent));
 
-        let area = d3
-            .area()
+        let areaGen = area()
             .x(d => x(d.year))
             .y1(d => y(d.percent));
 
-        area.y0(y(0));
+        areaGen.y0(y(0));
 
         // let states = topairs(groupby(records, 'state'));
 
-        let states = d3
-            .nest()
+        let states = nest()
             .key(d => d.state)
             .entries(records);
 
@@ -135,12 +139,12 @@ export default {
             )
             .forEach(state => {
                 state.shownRecord = null; // state.values[state.values.length - 1];
-                state.area = area(state.values);
-                state.line = line(state.values);
+                state.area = areaGen(state.values);
+                state.line = lineGen(state.values);
             });
 
-        let governors = execs
-            .filter(exec => exec.Position.trim() === 'Governor')
+        let governors = csvParse(execs)
+            // .filter(exec => exec.Position.trim() === 'Governor')
             .map(exec => {
                 let years = exec.Years
                     .split('-')
@@ -151,13 +155,13 @@ export default {
                     years,
                     x1: x(parseInt(years[0])),
                     x2: x(parseInt(years[1])),
-                    state: journalize.postal(exec.State, true),
+                    state: postal(exec.State, true),
                     name: exec.Name
                 };
             })
             .filter(exec => exec.x2 > 0);
 
-        governors = d3.nest()
+        governors = nest()
             .key((d) => d.state)
             .object(governors);
 
@@ -189,7 +193,7 @@ export default {
                     width: w
                 };
             });
-/*
+        /*
         states.forEach(state => {
             horizontalTicks.forEach(tick => {
                 let result = state.values.find(d => d.year === tick.year);
@@ -198,7 +202,7 @@ export default {
                 }
             });
         });
-*/
+        */
         return {
             ticks,
             yearExtent,
@@ -246,7 +250,7 @@ svg {
     overflow: visible;
 }
 svg .area {
-    fill: #ff6480;
+    /* fill: #ff6480; */
 }
 svg .line {
     fill: none;
@@ -284,7 +288,7 @@ svg .line {
 line {
     stroke: rgb(218,218,218);
     stroke-width: 1px;
-    shape-rendering: optimizeSpeed;
+    shape-rendering: crispEdges;
 }
 .darker {
     stroke: rgb(200,200,200);
@@ -347,6 +351,15 @@ circle {
 .keyBox {
     background-color: #ff6480;
     border: 1px solid black;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    position: relative;
+    top: 2px;
+}
+.keyBoxDashed {
+    background-color: #FDBACA;
+    border: 1px dashed black;
     display: inline-block;
     width: 14px;
     height: 14px;

@@ -1,70 +1,77 @@
 <template>
-    <div>
-        <div class="key">
-            <p><span class="keyBox"></span> Percent of positions held by women</p>
-            <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
-            <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
-        </div>
-
-        <div class="states">
-            <div v-for="(state,i) in states" class="state stateContainer">
-                <h4 style="text-align:center">{{state.key}}</h4>
-
-                <div class="boxLabel" style="text-align:center;margin-bottom:5px">
-                    GOVERNOR
-                </div>
-
-                <svg :width="width" height="7">
-                    <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
-                </svg>
-
-
-                <div class="legislativeContainer">
-                    <div class="boxLabel">
-                        LEGISLATURE
-                    </div>
-
-                    <div :class="'percentLabel' + (i === 0 ? ' bumpTextUp' : '')" v-if="state.shownRecord">
-                        {{Math.round(state.shownRecord.percent)}}% <span v-if="i === 0">of seats<br>held by women</span><br>
-                        in {{state.shownRecord.year}}
-                    </div>
-
-
-                    <svg :width="width" :height="height" @mouseout="showLabel(null)">
-                        <defs>
-                          <linearGradient id='grad'>
-                            <stop stop-color='#FDBACA'/>
-                            <stop offset='18.9%' stop-color='#FDBACA'/>
-                            <stop offset='19%' stop-color='#ff6480'/>
-                          </linearGradient>
-                        </defs>
-
-                        <g>
-                            <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
-                            <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
-                        </g>
-                        <path :d="state.area" class="area" fill="url(#grad)" />
-                        <path :d="state.line" class="line" stroke-dasharray="4, 4, 4, 4, 4, 4, 4, 4, 300" />
-                        <!-- stroke="url(#grad)" -->
-
-                        <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
-
-                        <g>
-                            <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
-                        </g>
-                    </svg>
-                </div>
-
-                <div class="yearLabels">
-                    <div class="leftYearLabel">{{yearExtent[0]}}</div>
-                    <div class="rightYearLabel">{{yearExtent[1]}}</div>
-                </div>
-
+    <no-ssr>
+        <div>
+            <div class="key">
+                <p><span class="keyBox"></span> Percent of positions held by women</p>
+                <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
+                <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
             </div>
-        </div>
 
-        <p class="source">Source: Rutgers Center for American Women and Politics | <a href="seats.csv">Download data</a></p>
-    </div>
+            <div class="states">
+                <div v-for="(state,i) in states" class="state stateContainer">
+                    <h4 style="text-align:center">{{state.key}}</h4>
+
+                    <div class="boxLabel" style="text-align:center;margin-bottom:5px">
+                        GOVERNOR
+                    </div>
+
+                    <svg :width="width" height="7">
+                        <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                    </svg>
+
+
+                    <div class="legislativeContainer">
+                        <div class="boxLabel">
+                            LEGISLATURE
+                        </div>
+
+                        <div :class="'percentLabel' + (i === 0 ? ' bumpTextUp' : '')" v-if="state.shownRecord">
+                            {{Math.round(state.shownRecord.percent)}}% <span v-if="i === 0">of seats<br>held by women</span><br>
+                            in {{state.shownRecord.year}}
+                        </div>
+
+
+                        <svg :width="width" :height="height" @mouseout="showLabel(null)" xmlns="http://www.w3.org/2000/svg">
+                            <!--
+                            <defs>
+                              <linearGradient id='grad'>
+                                <stop stop-color='#FDBACA'/>
+                                <stop offset='18.9%' stop-color='#FDBACA'/>
+                                <stop offset='19%' stop-color='#ff6480'/>
+                              </linearGradient>
+                            </defs>
+                            -->
+
+                            <g>
+                                <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
+                                <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
+                            </g>
+                            <path :d="state.area" class="area" />
+                            <path :d="state.line" class="line" />
+
+                            <path :d="state.areaDashed" class="area dashed" />
+                            <path :d="state.lineDashed" class="line dashed" stroke-dasharray="4, 4, 4, 4, 4, 4, 4, 4, 4, 4" />
+                            <!-- stroke="url(#grad)" -->
+
+                            <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
+
+                            <g>
+                                <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="yearLabels">
+                        <div class="leftYearLabel">{{yearExtent[0]}}</div>
+                        <div class="rightYearLabel">{{yearExtent[1]}}</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <p class="source">Source: Rutgers Center for American Women and Politics | <a href="seats.csv">Download data</a></p>
+        </div>
+    </no-ssr>
 </template>
 
 <script>
@@ -78,7 +85,13 @@ export default {
         let width = 138;
         let height = 223;
 
+        let filterStates = [];
+        if (typeof location !== 'undefined' && location.hash) {
+            filterStates = location.hash.replace('#', '').split(',').map(state => state.toUpperCase());
+        }
+
         let records = csvParse(seats)
+            .filter(d => filterStates.length === 0 || filterStates.indexOf(postal(d.state)) !== -1)
             .map(d => {
                 let percent = parseInt(d.cawp_total_women) / // d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
                     parseInt(d.cawp_total_legislators) * 100; // ['Total Legislators']
@@ -115,7 +128,6 @@ export default {
         });
 
         let lineGen = line()
-            .defined(d => d)
             .x(d => x(d.year))
             .y(d => y(d.percent));
 
@@ -139,8 +151,10 @@ export default {
             )
             .forEach(state => {
                 state.shownRecord = null; // state.values[state.values.length - 1];
-                state.area = areaGen(state.values);
-                state.line = lineGen(state.values);
+                state.area = areaGen(state.values.filter(d => d.year >= 1982));
+                state.line = lineGen(state.values.filter(d => d.year >= 1982));
+                state.areaDashed = areaGen(state.values.filter(d => d.year <= 1983));
+                state.lineDashed = lineGen(state.values.filter(d => d.year <= 1983));
             });
 
         let governors = csvParse(execs)
@@ -250,7 +264,10 @@ svg {
     overflow: visible;
 }
 svg .area {
-    /* fill: #ff6480; */
+    fill: #ff6480;
+}
+svg .area.dashed {
+    fill: #FDBACA;
 }
 svg .line {
     fill: none;

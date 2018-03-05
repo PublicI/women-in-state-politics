@@ -150,6 +150,12 @@ export default {
                     a.values[a.values.length - 1].percent
             )
             .forEach(state => {
+                state.valuesLookup = {};
+
+                state.values.forEach(d => {
+                    state.valuesLookup[d.year] = d;
+                });
+
                 state.shownRecord = null; // state.values[state.values.length - 1];
                 state.area = areaGen(state.values.filter(d => d.year >= 1982));
                 state.line = lineGen(state.values.filter(d => d.year >= 1982));
@@ -238,7 +244,7 @@ export default {
             }
 
             this.states.forEach((state) => {
-                state.shownRecord = state.values.find((d) => d.year === year);
+                state.shownRecord = state.valuesLookup[year];
             });
         }
     }

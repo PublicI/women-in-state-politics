@@ -75,8 +75,8 @@ import { postal } from 'journalize';
 
 export default {
     data() {
-        let width = 128;
-        let height = 215;
+        let width = 138;
+        let height = 223;
 
         let records = csvParse(seats)
             .map(d => {
@@ -233,7 +233,7 @@ export default {
 
 <style>
 .stateContainer {
-    width: 130px;
+    width: 140px;
     display: inline-block;
     float: left;
     margin: 5px;
@@ -335,7 +335,7 @@ circle {
 }
 .key {
     font-size: 14px;
-    line-height: 16px;
+    line-height: 18px;
 }
 .vue-tooltip {
     font-family: tablet-gothic-n2,tablet-gothic,Helvetica Neue,Helvetica,Arial,sans-serif;

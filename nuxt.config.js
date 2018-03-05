@@ -36,6 +36,7 @@ module.exports = {
         ]
     ],
     plugins: [
+        { src: '~/plugins/tooltip.js', ssr: false },
         { src: '~/plugins/pym.js', ssr: false },
         { src: '~/plugins/typekit.js', ssr: false },
         { src: '~plugins/chartbeat.js', ssr: false }
@@ -70,7 +71,7 @@ module.exports = {
         extend(config, ctx) {
             config.module.rules.push({
                 test: /\.csv$/,
-                use: [{ loader: 'dsv-loader' }]
+                use: [{ loader: 'raw-loader' }]
             });
 
             if (ctx.isClient) {

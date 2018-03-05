@@ -1,77 +1,100 @@
 <template>
-    <div>
-        <div class="key">
-            <p><span class="keyBox"></span> Percent of positions held by women</p>
-            <p style="margin-top:10px">In order of 2017 percentage &rarr;</p>
-        </div>
-
-        <div class="states">
-            <div v-for="(state,i) in states" class="state stateContainer">
-                <h4 style="text-align:center">{{state.key}}</h4>
-
-                <div class="boxLabel" style="text-align:center;margin-bottom:5px">
-                    GOVERNOR
-                </div>
-
-                <svg :width="width" height="6">
-                    <rect :x="governor.x1" y="-1" :width="governor.x2-governor.x1" height="5" v-for="governor in governors[state.key]" class="governor" />
-                </svg>
-
-
-                <div class="legislativeContainer">
-                    <div class="boxLabel">
-                        LEGISLATURE
-                    </div>
-
-                    <div class="percentLabel" v-if="state.shownRecord">
-                        {{state.shownRecord.percent}}%<br>
-                        in {{state.shownRecord.year}}
-                    </div>
-
-
-                    <svg :width="width" :height="height" @mouseout="showLabel(null)">
-                        <g>
-                            <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
-                            <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks" />
-                        </g>
-                        <path :d="state.area" class="area" />
-                        <path :d="state.line" class="line" />
-
-                        <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
-
-                        <g>
-                            <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
-                        </g>
-                    </svg>
-                </div>
-
-                <div class="yearLabels">
-                    <div class="leftYearLabel">{{yearExtent[0]}}</div>
-                    <div class="rightYearLabel">{{yearExtent[1]}}</div>
-                </div>
-
+    <no-ssr>
+        <div>
+            <div class="key">
+                <p><span class="keyBox"></span> Percent of positions held by women</p>
+                <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
+                <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
             </div>
-        </div>
 
-        <p class="source">Source: Rutgers Center for American Women and Politics | <a href="#">Download data</a></p>
-    </div>
+            <div class="states">
+                <div v-for="(state,i) in states" class="state stateContainer">
+                    <h4 style="text-align:center">{{state.key}}</h4>
+
+                    <div class="boxLabel" style="text-align:center;margin-bottom:5px">
+                        GOVERNOR
+                    </div>
+
+                    <svg :width="width" height="7">
+                        <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                    </svg>
+
+
+                    <div class="legislativeContainer">
+                        <div class="boxLabel">
+                            LEGISLATURE
+                        </div>
+
+                        <div :class="'percentLabel' + (i === 0 ? ' bumpTextUp' : '')" v-if="state.shownRecord">
+                            {{Math.round(state.shownRecord.percent)}}% <span v-if="i === 0">of seats<br>held by women</span><br>
+                            in {{state.shownRecord.year}}
+                        </div>
+
+
+                        <svg :width="width" :height="height" @mouseout="showLabel(null)" xmlns="http://www.w3.org/2000/svg">
+                            <!--
+                            <defs>
+                              <linearGradient id='grad'>
+                                <stop stop-color='#FDBACA'/>
+                                <stop offset='18.9%' stop-color='#FDBACA'/>
+                                <stop offset='19%' stop-color='#ff6480'/>
+                              </linearGradient>
+                            </defs>
+                            -->
+
+                            <g>
+                                <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
+                                <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
+                            </g>
+                            <path :d="state.area" class="area" />
+                            <path :d="state.line" class="line" />
+
+                            <path :d="state.areaDashed" class="area dashed" />
+                            <path :d="state.lineDashed" class="line dashed" stroke-dasharray="4, 4, 4, 4, 4, 4, 4, 4, 4, 4" />
+                            <!-- stroke="url(#grad)" -->
+
+                            <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
+
+                            <g>
+                                <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="yearLabels">
+                        <div class="leftYearLabel">{{yearExtent[0]}}</div>
+                        <div class="rightYearLabel">{{yearExtent[1]}}</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <p class="source">Source: Rutgers Center for American Women and Politics | <a href="seats.csv">Download data</a></p>
+        </div>
+    </no-ssr>
 </template>
 
 <script>
-import seats from '~/assets/seats.csv';
-import execs from '~/assets/execs.csv';
-import * as d3 from 'd3';
-import * as journalize from 'journalize';
+import seats from '~/static/seats.csv';
+import execs from '~/assets/govs.csv';
+import { line, area, nest, scaleLinear, extent, csvParse } from 'd3';
+import { postal } from 'journalize';
 
 export default {
     data() {
-        let width = 88;
-        let height = 176;
+        let width = 138;
+        let height = 223;
 
-        let records = seats
+        let filterStates = [];
+        if (typeof location !== 'undefined' && location.hash) {
+            filterStates = location.hash.replace('#', '').split(',').map(state => state.toUpperCase());
+        }
+
+        let records = csvParse(seats)
+            .filter(d => filterStates.length === 0 || filterStates.indexOf(postal(d.state)) !== -1)
             .map(d => {
-                let percent = parseInt(d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
-                    parseInt(d['Total Legislators']) * 100;
+                let percent = parseInt(d.cawp_total_women) / // d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
+                    parseInt(d.cawp_total_legislators) * 100; // ['Total Legislators']
 
                 percent = Math.round(percent * 10) / 10;
 
@@ -82,21 +105,20 @@ export default {
                 */
 
                 return {
-                    state: d.State,
-                    year: parseInt(d.Year),
+                    state: d.state,
+                    year: parseInt(d.year),
                     percent: percent
                 };
             })
             .sort((a, b) => a.year - b.year);
 
-        let x = d3.scaleLinear().range([0, width]);
+        let x = scaleLinear().range([0, width]);
 
-        let yearExtent = d3.extent(records, d => d.year);
+        let yearExtent = extent(records, d => d.year);
 
         x.domain(yearExtent);
 
-        let y = d3
-            .scaleLinear()
+        let y = scaleLinear()
             .domain([0, 100])
             .range([height - 2, 0]);
 
@@ -105,23 +127,19 @@ export default {
             d.x = x(d.year);
         });
 
-        let line = d3
-            .line()
-            .defined(d => d)
+        let lineGen = line()
             .x(d => x(d.year))
             .y(d => y(d.percent));
 
-        let area = d3
-            .area()
+        let areaGen = area()
             .x(d => x(d.year))
             .y1(d => y(d.percent));
 
-        area.y0(y(0));
+        areaGen.y0(y(0));
 
         // let states = topairs(groupby(records, 'state'));
 
-        let states = d3
-            .nest()
+        let states = nest()
             .key(d => d.state)
             .entries(records);
 
@@ -132,13 +150,21 @@ export default {
                     a.values[a.values.length - 1].percent
             )
             .forEach(state => {
+                state.valuesLookup = {};
+
+                state.values.forEach(d => {
+                    state.valuesLookup[d.year] = d;
+                });
+
                 state.shownRecord = null; // state.values[state.values.length - 1];
-                state.area = area(state.values);
-                state.line = line(state.values);
+                state.area = areaGen(state.values.filter(d => d.year >= 1982));
+                state.line = lineGen(state.values.filter(d => d.year >= 1982));
+                state.areaDashed = areaGen(state.values.filter(d => d.year <= 1983));
+                state.lineDashed = lineGen(state.values.filter(d => d.year <= 1983));
             });
 
-        let governors = execs
-            .filter(exec => exec.Position === 'Governor')
+        let governors = csvParse(execs)
+            // .filter(exec => exec.Position.trim() === 'Governor')
             .map(exec => {
                 let years = exec.Years
                     .split('-')
@@ -149,13 +175,13 @@ export default {
                     years,
                     x1: x(parseInt(years[0])),
                     x2: x(parseInt(years[1])),
-                    state: journalize.postal(exec.State, true),
+                    state: postal(exec.State, true),
                     name: exec.Name
                 };
             })
-            .filter(exec => exec.x1 > 0);
+            .filter(exec => exec.x2 > 0);
 
-        governors = d3.nest()
+        governors = nest()
             .key((d) => d.state)
             .object(governors);
 
@@ -187,7 +213,16 @@ export default {
                     width: w
                 };
             });
-
+        /*
+        states.forEach(state => {
+            horizontalTicks.forEach(tick => {
+                let result = state.values.find(d => d.year === tick.year);
+                if (typeof result === 'undefined' || !result) {
+                    console.log(state.key, tick.year, result);
+                }
+            });
+        });
+        */
         return {
             ticks,
             yearExtent,
@@ -196,15 +231,20 @@ export default {
             governors,
             width,
             height,
-            shownYear: null
+            shownYear: null,
+            missingYears: [1976, 1978, 1980, 1982]
         };
     },
     methods: {
         showLabel(year) {
             this.shownYear = year;
 
+            if (this.missingYears.indexOf(year) !== -1) {
+                year--;
+            }
+
             this.states.forEach((state) => {
-                state.shownRecord = state.values.find((d) => d.year === year);
+                state.shownRecord = state.valuesLookup[year];
             });
         }
     }
@@ -213,24 +253,27 @@ export default {
 
 <style>
 .stateContainer {
-    width: 90px;
+    width: 140px;
     display: inline-block;
     float: left;
     margin: 5px;
 }
 .state h4 {
-    font-size: 13px;
-    line-height: 13px;
+    font-size: 14px;
+    line-height: 14px;
 }
 svg {
     display: block;
     width: 100%;
-    margin-top: 2px;
+    margin-top: 6px;
     border: 1px solid rgb(200,200,200);
     overflow: visible;
 }
 svg .area {
     fill: #ff6480;
+}
+svg .area.dashed {
+    fill: #FDBACA;
 }
 svg .line {
     fill: none;
@@ -249,8 +292,8 @@ svg .line {
     shape-rendering: optimizeSpeed;
 }
 .yearLabels {
-    font-size: 12px;
-    line-height: 12px;
+    font-size: 13px;
+    line-height: 13px;
     color: rgb(150,150,150);
     padding-top: 3px;
 }
@@ -268,22 +311,22 @@ svg .line {
 line {
     stroke: rgb(218,218,218);
     stroke-width: 1px;
-    shape-rendering: optimizeSpeed;
+    shape-rendering: crispEdges;
 }
 .darker {
     stroke: rgb(200,200,200);
 }
 .tickLabel {
-    font-size: 12px;
-    line-height: 12px;
+    font-size: 13px;
+    line-height: 13px;
     fill: rgb(150,150,150);
 }
 .boxLabel {
-    font-size: 12px;
-    line-height: 12px;
+    font-size: 13px;
+    line-height: 13px;
     color: rgb(150,150,150);
     fill: rgb(150,150,150);
-    margin-top: 8px;
+    margin-top: 2px;
 }
 .target {
     fill: transparent;
@@ -293,7 +336,7 @@ line {
 }
 .legislativeContainer .boxLabel {
     position: absolute;
-    top: 1px;
+    top: 18px;
     text-align: center;
     width: 100%;
 }
@@ -303,8 +346,8 @@ line {
     color: rgb(150,150,150);
     fill: rgb(150,150,150);
     position: absolute;
-    top: 50%;
-    margin-top: -34px;
+    top: 45%;
+    margin-top: -30px;
     text-align: center;
     width: 100%;
     pointer-events: none;
@@ -315,7 +358,13 @@ circle {
 }
 .key {
     font-size: 14px;
-    line-height: 16px;
+    line-height: 18px;
+}
+.vue-tooltip {
+    font-family: tablet-gothic-n2,tablet-gothic,Helvetica Neue,Helvetica,Arial,sans-serif;
+    line-height: 14px;
+    font-weight: 300;
+    font-size: 14px;
 }
 .key p {
     margin-bottom: 0;
@@ -331,9 +380,22 @@ circle {
     position: relative;
     top: 2px;
 }
+.keyBoxDashed {
+    background-color: #FDBACA;
+    border: 1px dashed black;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    position: relative;
+    top: 2px;
+}
 .source {
     line-height: 15px;
     font-size: 13px;
     color: #666;
+    margin-bottom: 4px;
+}
+.bumpTextUp {
+    margin-top: -37px;
 }
 </style>

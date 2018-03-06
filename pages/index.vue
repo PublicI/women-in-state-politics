@@ -69,7 +69,9 @@
                 </div>
             </div>
 
-            <p class="source">Source: Rutgers Center for American Women and Politics | <a href="seats.csv">Download data</a></p>
+            <p v-if="filterStates" style="margin-top:20px"><a href="https://www.publicintegrity.org/2018/03/06/21606/share-women-elected-office-every-state" target="_top">See the share of women in elected office in every state &raquo;</a></p>
+
+            <p class="source">Source: Rutgers University <a href="http://www.cawp.rutgers.edu/state-by-state" target="_top">Center for American Women and Politics</a><br><a href="http://www.ncsl.org/legislators-staff/legislators/womens-legislative-network/women-in-state-legislatures-for-2018.aspx" target="_top">National Conference of State Legislatures</a> percentages used for 2007 in Connecticut, 2005 and 2007 in Mississippi and 2007 in Wyoming<br><a href="seats.csv">Download data</a></p>
         </div>
     </no-ssr>
 </template>
@@ -232,7 +234,8 @@ export default {
             width,
             height,
             shownYear: null,
-            missingYears: [1976, 1978, 1980, 1982]
+            missingYears: [1976, 1978, 1980, 1982],
+            filterStates: filterStates.length > 0
         };
     },
     methods: {
@@ -390,7 +393,7 @@ circle {
     top: 2px;
 }
 .source {
-    line-height: 15px;
+    line-height: 17px;
     font-size: 13px;
     color: #666;
     margin-bottom: 4px;

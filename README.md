@@ -1,6 +1,7 @@
 # women-in-state-politics
 
-> A Center for Public Integrity project
+> Graphic for "[Share of women in elected office in every state
+](https://www.publicintegrity.org/2018/03/06/21606/share-women-elected-office-every-state)"
 
 ## Build setup
 

@@ -1,83 +1,83 @@
 <template>
-    <no-ssr>
-        <div>
-            <div class="key">
-                <p><span class="keyBox"></span> Percent of positions held by women</p>
-                <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
-                <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
-            </div>
-
-            <div class="states">
-                <div v-for="(state,i) in states" class="state stateContainer">
-                    <h4 style="text-align:center">{{state.key}}</h4>
-
-                    <div class="boxLabel" style="text-align:center;margin-bottom:5px">
-                        GOVERNOR
-                    </div>
-
-                    <svg :width="width" height="7">
-                        <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
-                    </svg>
-
-
-                    <div class="legislativeContainer">
-                        <div class="boxLabel">
-                            LEGISLATURE
-                        </div>
-
-                        <div :class="'percentLabel' + (i === 0 ? ' bumpTextUp' : '')" v-if="state.shownRecord">
-                            {{Math.round(state.shownRecord.percent)}}% <span v-if="i === 0">of seats<br>held by women</span><br>
-                            in {{state.shownRecord.year}}
-                        </div>
-
-
-                        <svg :width="width" :height="height" @mouseout="showLabel(null)" xmlns="http://www.w3.org/2000/svg">
-                            <!--
-                            <defs>
-                              <linearGradient id='grad'>
-                                <stop stop-color='#FDBACA'/>
-                                <stop offset='18.9%' stop-color='#FDBACA'/>
-                                <stop offset='19%' stop-color='#ff6480'/>
-                              </linearGradient>
-                            </defs>
-                            -->
-
-                            <g>
-                                <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
-                                <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
-                            </g>
-                            <path :d="state.area" class="area" />
-                            <path :d="state.line" class="line" />
-
-                            <path :d="state.areaDashed" class="area dashed" />
-                            <path :d="state.lineDashed" class="line dashed" stroke-dasharray="4, 4, 4, 4, 4, 4, 4, 4, 4, 4" />
-                            <!-- stroke="url(#grad)" -->
-
-                            <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
-
-                            <g>
-                                <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
-                            </g>
-                        </svg>
-                    </div>
-
-                    <div class="yearLabels">
-                        <div class="leftYearLabel">{{yearExtent[0]}}</div>
-                        <div class="rightYearLabel">{{yearExtent[1]}}</div>
-                    </div>
-
+    <div>
+        <no-ssr>
+                <div class="key">
+                    <p><span class="keyBox"></span> Percent of positions held by women</p>
+                    <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
+                    <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
                 </div>
-            </div>
 
-            <p v-if="filterStates" style="margin-top:20px"><a href="https://www.publicintegrity.org/2018/03/06/21606/share-women-elected-office-every-state" target="_top">See the share of women in elected office in every state &raquo;</a></p>
+                <div class="states">
+                    <div v-for="(state,i) in states" class="state stateContainer">
+                        <h4 style="text-align:center">{{state.key}}</h4>
 
-            <p class="source">Source: Rutgers University <a href="http://www.cawp.rutgers.edu/state-by-state" target="_top">Center for American Women and Politics</a><br><a href="http://www.ncsl.org/legislators-staff/legislators/womens-legislative-network/women-in-state-legislatures-for-2018.aspx" target="_top">National Conference of State Legislatures</a> percentages used for 2007 in Connecticut, 2005 and 2007 in Mississippi and 2007 in Wyoming<br><a href="seats.csv">Download data</a></p>
-        </div>
-    </no-ssr>
+                        <div class="boxLabel" style="text-align:center;margin-bottom:5px">
+                            GOVERNOR
+                        </div>
+
+                        <svg :width="width" height="7">
+                            <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                        </svg>
+
+
+                        <div class="legislativeContainer">
+                            <div class="boxLabel">
+                                LEGISLATURE
+                            </div>
+
+                            <div :class="'percentLabel' + (i === 0 ? ' bumpTextUp' : '')" v-if="state.shownRecord">
+                                {{Math.round(state.shownRecord.percent)}}% <span v-if="i === 0">of seats<br>held by women</span><br>
+                                in {{state.shownRecord.year}}
+                            </div>
+
+
+                            <svg :width="width" :height="height" @mouseout="showLabel(null)" xmlns="http://www.w3.org/2000/svg">
+                                <!--
+                                <defs>
+                                  <linearGradient id='grad'>
+                                    <stop stop-color='#FDBACA'/>
+                                    <stop offset='18.9%' stop-color='#FDBACA'/>
+                                    <stop offset='19%' stop-color='#ff6480'/>
+                                  </linearGradient>
+                                </defs>
+                                -->
+
+                                <g>
+                                    <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
+                                    <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
+                                </g>
+                                <path :d="state.area" class="area" />
+                                <path :d="state.line" class="line" />
+
+                                <path :d="state.areaDashed" class="area dashed" />
+                                <path :d="state.lineDashed" class="line dashed" stroke-dasharray="4, 4, 4, 4, 4, 4, 4, 4, 4, 4" />
+                                <!-- stroke="url(#grad)" -->
+
+                                <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
+
+                                <g>
+                                    <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
+                                </g>
+                            </svg>
+                        </div>
+
+                        <div class="yearLabels">
+                            <div class="leftYearLabel">{{yearExtent[0]}}</div>
+                            <div class="rightYearLabel">{{yearExtent[1]}}</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <p v-if="filterStates" style="margin-top:20px"><a href="https://www.publicintegrity.org/2018/03/06/21606/share-women-elected-office-every-state" target="_top">See the share of women in elected office in every state &raquo;</a></p>
+
+                <p class="source">Source: Rutgers University <a href="http://www.cawp.rutgers.edu/state-by-state" target="_top">Center for American Women and Politics</a><br><a href="http://www.ncsl.org/legislators-staff/legislators/womens-legislative-network/women-in-state-legislatures-for-2018.aspx" target="_top">National Conference of State Legislatures</a> percentages used for 2007 in Connecticut, 2005 and 2007 in Mississippi and 2007 in Wyoming<br><a href="seats.csv">Download data</a></p>
+        </no-ssr>
+    </div>
 </template>
 
 <script>
-import seats from '~/static/seats.csv';
+import seats from '~/assets/seats.csv';
 import execs from '~/assets/govs.csv';
 import { line, area, nest, scaleLinear, extent, csvParse } from 'd3';
 import { postal } from 'journalize';

@@ -1,7 +1,9 @@
 /* eslint-disable */
 
-export default ({ app }) => {    
-    if (document && document.referrer && document.referrer.indexOf('publicintegrity.org') !== -1) {
+export default ({ app }) => {
+    if (document &&
+        document.referrer &&
+        document.referrer.indexOf('publicintegrity.org') !== -1) {
         return;
     }
 

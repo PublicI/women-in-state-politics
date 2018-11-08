@@ -15,7 +15,7 @@ module.exports = {
             {
                 hid: 'description',
                 name: 'description',
-                content: 'A Center for Public Integrity project'
+                content: ''
             }
         ],
         link: [
@@ -31,7 +31,15 @@ module.exports = {
         [
             '@nuxtjs/google-analytics',
             {
-                id: 'UA-3383794-4'
+                id: 'UA-3383794-4',
+                debug: {
+                    sendHitTask: !(
+                        typeof document !== 'undefined' &&
+                        document &&
+                        document.referrer &&
+                        document.referrer.indexOf('publicintegrity.org') !== -1
+                    )
+                }
             }
         ]
     ],
@@ -39,13 +47,13 @@ module.exports = {
         { src: '~/plugins/tooltip.js', ssr: false },
         { src: '~/plugins/pym.js', ssr: false },
         { src: '~/plugins/typekit.js', ssr: false },
-        { src: '~plugins/chartbeat.js', ssr: false }
+        { src: '~/plugins/chartbeat.js', ssr: false }
     ],
     axios: {
         baseURL: process.server
             ? `http://${process.env.HOST || 'localhost'}:${process.env.PORT ||
                   3000}`
-            : ''
+            : `/${pkg.name}/`
     },
     generate: {
         minify: {
@@ -53,18 +61,17 @@ module.exports = {
             removeEmptyAttributes: false
         }
     },
-    /*
-     ** Global CSS
-     */
     router: {
         base: `/${pkg.name}/`
     },
+    /*
+     ** Global CSS
+     */
     css: ['~/assets/css/site.css', '~/assets/css/main.css'],
     /*
      ** Add axios globally
      */
     build: {
-        vendor: ['axios'],
         /*
          ** Run ESLINT on save
          */

@@ -23,6 +23,12 @@ module.exports = {
                 rel: 'icon',
                 type: 'image/x-icon',
                 href: `/${pkg.name}/favicon.ico`
+            },
+            {
+                rel: 'alternate',
+                type: 'application/json+oembed',
+                href: '//apps.publicintegrity.org/women-in-state-politics/oembed.json',
+                title: 'women-in-state-politics'
             }
         ]
     },
@@ -55,12 +61,6 @@ module.exports = {
                   3000}`
             : `/${pkg.name}/`
     },
-    generate: {
-        minify: {
-            collapseWhitespace: false,
-            removeEmptyAttributes: false
-        }
-    },
     router: {
         base: `/${pkg.name}/`
     },
@@ -72,6 +72,12 @@ module.exports = {
      ** Add axios globally
      */
     build: {
+        html: {
+            minify: {
+                collapseWhitespace: false,
+                removeEmptyAttributes: false
+            }
+        },
         /*
          ** Run ESLINT on save
          */

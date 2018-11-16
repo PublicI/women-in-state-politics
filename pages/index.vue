@@ -3,7 +3,7 @@
         <no-ssr>
                 <div class="key">
                     <p><span class="keyBox"></span> Percent of positions held by women</p>
-                    <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year from 1975 - 1982</p> <!-- 1976, 1978, 1980, 1982 -->
+                    <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year or each session of congress</p> <!-- 1976, 1978, 1980, 1982 -->
                     <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
                 </div>
 
@@ -12,7 +12,7 @@
                         <h4 style="text-align:center">{{state.key}}</h4>
 
                         <div class="boxLabel" style="text-align:center;margin-bottom:5px">
-                            GOVERNOR
+                            {{state.key == 'U.S.' ? 'PRESIDENT' : 'GOVERNOR' }}
                         </div>
 
                         <svg :width="width" height="7">
@@ -22,7 +22,7 @@
 
                         <div class="legislativeContainer">
                             <div class="boxLabel">
-                                LEGISLATURE
+                                {{state.key == 'U.S.' ? 'CONGRESS' : 'LEGISLATURE' }}
                             </div>
 
                             <div :class="'percentLabel' + (i === 0 ? ' bumpTextUp' : '')" v-if="state.shownRecord">
@@ -31,7 +31,7 @@
                             </div>
 
 
-                            <svg :width="width" :height="height" @mouseout="showLabel(null)" xmlns="http://www.w3.org/2000/svg">
+                            <svg :width="width" :height="height" @mouseout="showLabel(null,null)" xmlns="http://www.w3.org/2000/svg">
                                 <!--
                                 <defs>
                                   <linearGradient id='grad'>
@@ -56,7 +56,7 @@
                                 <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
 
                                 <g>
-                                    <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year)" />
+                                    <rect class="target" :x="tick.x" :y="tick.y1" :width="tick.width" :height="tick.height" v-for="(tick,i) in horizontalTicks" @mouseover="showLabel(tick.year,state.key)" />
                                 </g>
                             </svg>
                         </div>
@@ -93,7 +93,6 @@ export default {
         }
 
         let records = csvParse(seats)
-            .filter(d => filterStates.length === 0 || filterStates.indexOf(postal(d.state)) !== -1)
             .map(d => {
                 let percent = parseInt(d.cawp_total_women) / // d['Total Women Legislators'].replace(/[^0-9]*/g, '')) /
                     parseInt(d.cawp_total_legislators) * 100; // ['Total Legislators']
@@ -107,11 +106,12 @@ export default {
                 */
 
                 return {
-                    state: d.state,
+                    state: postal(d.state,true),
                     year: parseInt(d.year),
                     percent: percent
                 };
             })
+            .filter(d => filterStates.length === 0 || filterStates.indexOf(postal(d.state)) !== -1)
             .sort((a, b) => a.year - b.year);
 
         let x = scaleLinear().range([0, width]);
@@ -159,18 +159,32 @@ export default {
                 });
 
                 state.shownRecord = null; // state.values[state.values.length - 1];
-                state.area = areaGen(state.values.filter(d => d.year >= 1982));
-                state.line = lineGen(state.values.filter(d => d.year >= 1982));
-                state.areaDashed = areaGen(state.values.filter(d => d.year <= 1983));
-                state.lineDashed = lineGen(state.values.filter(d => d.year <= 1983));
+                if (state.key !== 'U.S.') {
+                    state.area = areaGen(state.values.filter(d => d.year >= 1982));
+                    state.line = lineGen(state.values.filter(d => d.year >= 1982));
+                    state.areaDashed = areaGen(state.values.filter(d => d.year <= 1983));
+                    state.lineDashed = lineGen(state.values.filter(d => d.year <= 1983));
+                }
+                else {
+                    state.area = null;
+                    state.line = null;
+                    state.areaDashed = areaGen(state.values);
+                    state.lineDashed = lineGen(state.values);
+                }
             });
+
+        let us = states.find(row => row.key === 'U.S.');
+
+        states = states.filter(row => row.key !== 'U.S.');
+
+        states.unshift(us);
 
         let governors = csvParse(execs)
             // .filter(exec => exec.Position.trim() === 'Governor')
             .map(exec => {
                 let years = exec.Years
                     .split('-')
-                    .map(year => (year === 'present' ? '2017' : year));
+                    .map(year => (year === 'present' ? '2019' : year));
 
                 return {
                     position: exec.Position,
@@ -239,10 +253,10 @@ export default {
         };
     },
     methods: {
-        showLabel(year) {
+        showLabel(year,state) {
             this.shownYear = year;
 
-            if (this.missingYears.indexOf(year) !== -1) {
+            if (this.missingYears.indexOf(year) !== -1 || (state === 'U.S.' && year % 2 === 0)) {
                 year--;
             }
 

@@ -23,12 +23,6 @@ module.exports = {
                 rel: 'icon',
                 type: 'image/x-icon',
                 href: `/${pkg.name}/favicon.ico`
-            },
-            {
-                rel: 'alternate',
-                type: 'application/json+oembed',
-                href: '//apps.publicintegrity.org/women-in-state-politics/oembed.json',
-                title: 'women-in-state-politics'
             }
         ]
     },

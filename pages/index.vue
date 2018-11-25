@@ -84,7 +84,7 @@ import { postal } from 'journalize';
 
 export default {
     data() {
-        let width = 138;
+        let width = 138-5;
         let height = 223;
 
         let filterStates = [];
@@ -256,10 +256,10 @@ export default {
 
 <style>
 .stateContainer {
-    width: 140px;
+    width: 135px;
     display: inline-block;
     float: left;
-    margin: 5px;
+    margin: 4px;
 }
 .state h4 {
     font-size: 14px;

@@ -3,7 +3,9 @@
         <no-ssr>
                 <div class="key">
                     <p><span class="keyBox"></span> Percent of positions held by women</p>
-                    <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year or each session of congress</p> <!-- 1976, 1978, 1980, 1982 -->
+                    <!--
+                    <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year or each session of congress</p>
+                    --> <!-- 1976, 1978, 1980, 1982 -->
                     <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
                 </div>
 
@@ -159,18 +161,19 @@ export default {
                 });
 
                 state.shownRecord = null; // state.values[state.values.length - 1];
+                /*
                 if (state.key !== 'U.S.') {
                     state.area = areaGen(state.values.filter(d => d.year >= 1982));
                     state.line = lineGen(state.values.filter(d => d.year >= 1982));
                     state.areaDashed = areaGen(state.values.filter(d => d.year <= 1983));
                     state.lineDashed = lineGen(state.values.filter(d => d.year <= 1983));
                 }
-                else {
-                    state.area = null;
-                    state.line = null;
-                    state.areaDashed = areaGen(state.values);
-                    state.lineDashed = lineGen(state.values);
-                }
+                else {*/
+                    state.area = areaGen(state.values);
+                    state.line = lineGen(state.values);
+                    state.areaDash = null;
+                    state.lineDashed = null;
+                // }
             });
 
         let us = states.find(row => row.key === 'U.S.');

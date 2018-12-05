@@ -25,8 +25,8 @@ pipeline:
     secrets: [aws_access_key_id, aws_secret_access_key]
     commands:
       - npm run push
-    when:
-      branch: master
+  #  when:
+  #    branch: master
 
   # rebuild-cache:
   #   image: plugins/s3-cache:1
@@ -52,7 +52,7 @@ pipeline:
     secrets: [ slack_webhook ]
     template: >
       {{#success build.status}}
-        published https://apps.publicintegrity.org/women-in-state-politics/
+        published https://private.publicintegrity.org/women-in-state-politics/
       {{else}}
-        failed publishing https://apps.publicintegrity.org/women-in-state-politics/
+        failed publishing https://private.publicintegrity.org/women-in-state-politics/
       {{/success}}

@@ -6,11 +6,11 @@
                     <!--
                     <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year or each session of congress</p>
                     --> <!-- 1976, 1978, 1980, 1982 -->
-                    <p style="margin-top:10px">Ordered by higher 2017 legislative percentage to lower &rarr;</p>
+                    <p style="margin-top:10px">States ordered by 2019 legislative percentage &rarr;</p>
                 </div>
 
                 <div class="states">
-                    <div v-for="(state,i) in states" class="state stateContainer">
+                    <div v-for="(state,i) in states" :class="'state stateContainer ' + state.key.toLowerCase().replace(/\./g,'')">
                         <h4 style="text-align:center">{{state.key}}</h4>
 
                         <div class="boxLabel" style="text-align:center;margin-bottom:5px">
@@ -418,4 +418,11 @@ circle {
 .bumpTextUp {
     margin-top: -37px;
 }
+.us svg {
+    background-color: rgb(253,253,253);
+}
+/*
+.us svg .area {
+    fill: #FF6E7F;
+}*/
 </style>

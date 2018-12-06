@@ -17,7 +17,7 @@
                         </div>
 
                         <svg :width="width" height="7">
-                            <rect :x="governor.x1-0.5" y="0" :width="Math.max(1,governor.x2-governor.x1-1)" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                            <rect :x="governor.x1-0.5" y="0" :width="Math.max(1,governor.x2-governor.x1-0.5)" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
                         </svg>
 
 

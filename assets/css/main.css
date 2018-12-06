@@ -1,6 +1,3 @@
-html, body {
+body, html {
     height: auto;
-}
-body {
-    -webkit-tap-highlight-color: transparent;
 }

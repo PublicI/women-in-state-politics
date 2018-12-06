@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="basic-text">
         <no-ssr>
                 <div class="key">
                     <p><span class="keyBox"></span> Percent of positions held by women</p>
@@ -18,7 +18,7 @@
                         </div>
 
                         <svg :width="width" height="7">
-                            <rect :x="governor.x1" y="0" :width="governor.x2-governor.x1" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                            <rect :x="governor.x1 >= width ? governor.x1-2 : governor.x1" y="0" :width="(governor.x2-governor.x1 > 0 ? governor.x2-governor.x1 : governor.x2-governor.x1 + 2)" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
                         </svg>
 
 
@@ -381,7 +381,7 @@ circle {
     line-height: 18px;
 }
 .vue-tooltip {
-    font-family: tablet-gothic-n2,tablet-gothic,Helvetica Neue,Helvetica,Arial,sans-serif;
+    /* font-family: tablet-gothic-n2,tablet-gothic,Helvetica Neue,Helvetica,Arial,sans-serif; */
     line-height: 14px;
     font-weight: 300;
     font-size: 14px;
@@ -420,6 +420,11 @@ circle {
 }
 .us svg {
     background-color: rgb(253,253,253);
+}
+.basic-text h4 {
+    margin-bottom: 0;
+    margin-top: 3px;
+    padding-top: 3px;
 }
 /*
 .us svg .area {

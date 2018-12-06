@@ -3,9 +3,8 @@
         <no-ssr>
                 <div class="key">
                     <p><span class="keyBox"></span> Percent of positions held by women</p>
-                    <!--
-                    <p><span class="keyBoxDashed"></span> Percent of women in legislature recorded every other year or each session of congress</p>
-                    --> <!-- 1976, 1978, 1980, 1982 -->
+                    <p><span class="keyBoxDashed"></span> Cone of uncertainty</p>
+                    <!-- 1976, 1978, 1980, 1982 -->
                     <p style="margin-top:10px">States ordered by 2019 legislative percentage &rarr;</p>
                 </div>
 
@@ -18,7 +17,7 @@
                         </div>
 
                         <svg :width="width" height="7">
-                            <rect :x="governor.x1 >= width ? governor.x1-2 : governor.x1" y="0" :width="(governor.x2-governor.x1 > 0 ? governor.x2-governor.x1 : governor.x2-governor.x1 + 2)" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                            <rect :x="governor.x1-0.5" y="0" :width="Math.max(1,governor.x2-governor.x1-1)" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
                         </svg>
 
 
@@ -48,11 +47,13 @@
                                     <text x="2" :y="tick.y-2" class="tickLabel" v-for="tick in ticks" v-if="i === 0">{{tick.percent}}%</text>
                                     <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
                                 </g>
+
+                                <path :d="state.areaDashed" class="area dashed" />
+                                <path :d="state.lineDashed" class="line dashed" stroke-dasharray="1, 1, 1, 1, 1, 1, 1, 1, 1, 1" />
+
                                 <path :d="state.area" class="area" />
                                 <path :d="state.line" class="line" />
 
-                                <path :d="state.areaDashed" class="area dashed" />
-                                <path :d="state.lineDashed" class="line dashed" stroke-dasharray="4, 4, 4, 4, 4, 4, 4, 4, 4, 4" />
                                 <!-- stroke="url(#grad)" -->
 
                                 <circle :cx="state.shownRecord.x" :cy="state.shownRecord.y" r="3" v-if="state.shownRecord" />
@@ -109,8 +110,11 @@ export default {
 
                 return {
                     state: postal(d.state,true),
-                    year: parseInt(d.year),
-                    percent: percent
+                    year: +d.year,
+                    women: +d.cawp_total_women,
+                    legislators: +d.cawp_total_legislators,
+                    percent: percent,
+                    tctc: +d.tctc
                 };
             })
             .filter(d => filterStates.length === 0 || filterStates.indexOf(postal(d.state)) !== -1)
@@ -119,6 +123,8 @@ export default {
         let x = scaleLinear().range([0, width]);
 
         let yearExtent = extent(records, d => d.year);
+
+        // yearExtent[1] = yearExtent[1]+1;
 
         x.domain(yearExtent);
 
@@ -161,19 +167,21 @@ export default {
                 });
 
                 state.shownRecord = null; // state.values[state.values.length - 1];
-                /*
-                if (state.key !== 'U.S.') {
-                    state.area = areaGen(state.values.filter(d => d.year >= 1982));
-                    state.line = lineGen(state.values.filter(d => d.year >= 1982));
-                    state.areaDashed = areaGen(state.values.filter(d => d.year <= 1983));
-                    state.lineDashed = lineGen(state.values.filter(d => d.year <= 1983));
-                }
-                else {*/
-                    state.area = areaGen(state.values);
-                    state.line = lineGen(state.values);
-                    state.areaDash = null;
-                    state.lineDashed = null;
-                // }
+                state.area = areaGen(state.values);
+                state.line = lineGen(state.values);
+
+                let tctcValues = state.values.slice(1).slice(-2).map(d => {
+                    console.log(d.women,d.tctc,d.legislators,(d.women+d.tctc)/d.legislators)
+
+                    return {
+                        state: d.state,
+                        year: d.year,
+                        percent: d.tctc ? (d.women+d.tctc)/d.legislators*100 : d.percent
+                    };
+                });
+
+                state.areaDashed = areaGen(tctcValues);
+                state.lineDashed = lineGen(tctcValues);
             });
 
         let us = states.find(row => row.key === 'U.S.');
@@ -293,7 +301,7 @@ svg .area {
     fill: #ff6480;
 }
 svg .area.dashed {
-    fill: #FDBACA;
+    fill: rgb(220,220,220); /* #FDBACA; */
 }
 svg .line {
     fill: none;
@@ -401,8 +409,8 @@ circle {
     top: 2px;
 }
 .keyBoxDashed {
-    background-color: #FDBACA;
-    border: 1px dashed black;
+    background-color: rgb(220,220,220); /* #FDBACA; */
+    border: 1px dotted black;
     display: inline-block;
     width: 14px;
     height: 14px;

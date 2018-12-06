@@ -3,7 +3,9 @@
         <no-ssr>
                 <div class="key">
                     <p><span class="keyBox"></span> Percent of positions held by women</p>
+                    <!--
                     <p><span class="keyBoxDashed"></span> Cone of uncertainty</p>
+                    -->
                     <!-- 1976, 1978, 1980, 1982 -->
                     <p style="margin-top:10px">States ordered by 2019 legislative percentage &rarr;</p>
                 </div>
@@ -17,7 +19,8 @@
                         </div>
 
                         <svg :width="width" height="7">
-                            <rect :x="governor.x1-0.5" y="0" :width="Math.max(1,governor.x2-governor.x1-0.5)" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                            <rect :x="governor.x1-0.5" y="0" :width="Math.max(1,governor.x2-governor.x1)" height="5.5" v-for="governor in governors[state.key]" class="governor" v-tooltip.bottom="governor.name" />
+                            <rect :x="governor.x1-0.5" y="1" :width="Math.max(1.5,governor.x2-governor.x1+0.5)" height="4" v-for="governor in governors[state.key]" v-if="governor.x2 >= width" style="fill: #ff6480" />
                         </svg>
 
 
@@ -48,8 +51,10 @@
                                     <line :x1="tick.x1" :y1="tick.y" :x2="tick.x2" :y2="tick.y" :class="(tick.percent == 50 ? 'darker' : '')" v-for="tick in ticks"  />
                                 </g>
 
+                                <!--
                                 <path :d="state.areaDashed" class="area dashed" />
                                 <path :d="state.lineDashed" class="line dashed" stroke-dasharray="1, 1, 1, 1, 1, 1, 1, 1, 1, 1" />
+                                -->
 
                                 <path :d="state.area" class="area" />
                                 <path :d="state.line" class="line" />

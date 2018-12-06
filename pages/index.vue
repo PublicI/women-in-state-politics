@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import seats from '~/assets/seats.csv';
+import seats from '~/static/seats.csv';
 import execs from '~/assets/govs.csv';
 import { line, area, nest, scaleLinear, extent, csvParse } from 'd3';
 import { postal } from 'journalize';
@@ -114,7 +114,7 @@ export default {
                     women: +d.cawp_total_women,
                     legislators: +d.cawp_total_legislators,
                     percent: percent,
-                    tctc: +d.tctc
+                    tctc: +d.cawp_too_close_to_call_seats
                 };
             })
             .filter(d => filterStates.length === 0 || filterStates.indexOf(postal(d.state)) !== -1)

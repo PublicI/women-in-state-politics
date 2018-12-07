@@ -77,7 +77,7 @@
                     </div>
                 </div>
 
-                <p v-if="filterStates" style="margin-top:20px"><a href="https://publicintegrity.org/2018/03/06/21606/share-women-elected-office-every-state" target="_top">See the share of women in elected office in every state &raquo;</a></p>
+                <p v-if="filterStates" style="margin-top:20px"><a href="https://publicintegrity.org/state-politics/share-of-women-in-elected-office-in-every-state/" target="_top">See the share of women in elected office in every state &raquo;</a></p>
 
                 <p class="source">Source: Rutgers University <a href="http://www.cawp.rutgers.edu/state-by-state" target="_top">Center for American Women and Politics</a> as of Dec. 6, 2018<br><a href="http://www.ncsl.org/legislators-staff/legislators/womens-legislative-network/women-in-state-legislatures-for-2018.aspx" target="_top">National Conference of State Legislatures</a> percentages used for 2007 in Connecticut, 2005 and 2007 in Mississippi and 2007 in Wyoming<br><a href="seats.csv">Download data</a></p>
         </no-ssr>
@@ -176,7 +176,7 @@ export default {
                 state.line = lineGen(state.values);
 
                 let tctcValues = state.values.slice(1).slice(-2).map(d => {
-                    console.log(d.women,d.tctc,d.legislators,(d.women+d.tctc)/d.legislators)
+                    // console.log(d.women,d.tctc,d.legislators,(d.women+d.tctc)/d.legislators)
 
                     return {
                         state: d.state,
@@ -191,9 +191,13 @@ export default {
 
         let us = states.find(row => row.key === 'U.S.');
 
-        states = states.filter(row => row.key !== 'U.S.');
+        if (us) {
 
-        states.unshift(us);
+            states = states.filter(row => row.key !== 'U.S.');
+
+            states.unshift(us);
+
+        }
 
         let governors = csvParse(execs)
             // .filter(exec => exec.Position.trim() === 'Governor')
@@ -255,6 +259,7 @@ export default {
             });
         });
         */
+
         return {
             ticks,
             yearExtent,
@@ -310,7 +315,7 @@ svg .area.dashed {
 }
 svg .line {
     fill: none;
-    stroke: black;
+    stroke: #04284b;
     stroke-width: 1px;
 }
 .states:after {
@@ -320,7 +325,7 @@ svg .line {
 }
 .governor {
     fill: #ff6480;
-    stroke: black;
+    stroke: #04284b;
     stroke-width: 1px;
     shape-rendering: optimizeSpeed;
 }
@@ -406,7 +411,7 @@ circle {
 }
 .keyBox {
     background-color: #ff6480;
-    border: 1px solid black;
+    border: 1px solid #04284b;
     display: inline-block;
     width: 14px;
     height: 14px;
@@ -415,7 +420,7 @@ circle {
 }
 .keyBoxDashed {
     background-color: rgb(220,220,220); /* #FDBACA; */
-    border: 1px dotted black;
+    border: 1px dotted #04284b;
     display: inline-block;
     width: 14px;
     height: 14px;

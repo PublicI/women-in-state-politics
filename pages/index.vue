@@ -277,12 +277,13 @@ export default {
         showLabel(year,state) {
             this.shownYear = year;
 
-            if (this.missingYears.indexOf(year) !== -1 || (state === 'U.S.' && year % 2 === 0)) {
-                year--;
-            }
-
             this.states.forEach((state) => {
-                state.shownRecord = state.valuesLookup[year];
+                if (this.missingYears.indexOf(year) !== -1 || (state.key === 'U.S.' && year % 2 === 0)) {
+                    state.shownRecord = state.valuesLookup[year-1];
+                }
+                else {
+                    state.shownRecord = state.valuesLookup[year];
+                }
             });
         }
     }

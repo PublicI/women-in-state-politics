@@ -52,7 +52,7 @@ pipeline:
     secrets: [ slack_webhook ]
     template: >
       {{#success build.status}}
-        published https://private.publicintegrity.org/women-in-state-politics/
+        published https://apps.publicintegrity.org/women-in-state-politics/
       {{else}}
-        failed publishing https://private.publicintegrity.org/women-in-state-politics/
+        failed publishing https://apps.publicintegrity.org/women-in-state-politics/
       {{/success}}

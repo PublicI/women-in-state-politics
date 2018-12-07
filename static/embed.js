@@ -1,13 +1,13 @@
 /* eslint-disable */
 
 (function () {
-    var prefix = 'https://private.publicintegrity.org/women-in-state-politics/';
+    var prefix = 'https://apps.publicintegrity.org/women-in-state-politics/';
 /*
     if (document.location.hostname !== 'localhost' &&
         document.location.hostname !== '10.0.2.2' &&
         document.location.hostname !== 'iw-files.s3.amazonaws.com' &&
-        document.location.hostname.indexOf('private.fivetwentyseven.com') === -1) {
-        prefix = '//private.publicintegrity.org/women-in-state-politics/';
+        document.location.hostname.indexOf('apps.fivetwentyseven.com') === -1) {
+        prefix = '//apps.publicintegrity.org/women-in-state-politics/';
     }
 */
     try {
